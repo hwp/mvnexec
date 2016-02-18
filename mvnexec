@@ -45,6 +45,7 @@ Options:
    -q, --quiet           Be quiet. Don't show [INFO] messages.
    -B, --no-build        Avoid building. 
    -D, --no-copy-deps    Avoid copy dependencies
+  -m, --main=[class]    Use the specified main class
    -M, --no-main         Don't search on src/main/java.
    -T, --no-test         Don't search on src/test/java.
    -f, --filter-name     Name filter for classes.
@@ -125,7 +126,7 @@ function launch() {
 # }}}
 
 # parse args {{{
-TEMP=$(getopt -o "PqBMTf:DaCh" -l no-parameters,quiet,no-build,no-main,no-test,filter-name:,auto,no-copy-deps,no-clean,win-separator,help -n $(basename $0) -- "$@")
+TEMP=$(getopt -o "PqBm:MTf:DaCh" -l no-parameters,quiet,no-build,main,no-main,no-test,filter-name:,auto,no-copy-deps,no-clean,win-separator,help -n $(basename $0) -- "$@")
 
 EXIT=$?
 if [ $EXIT != 0 ]
@@ -155,6 +156,11 @@ do
       -q|--quiet) 
          QUIET="-q" 
          ;;
+    -m|--main)
+      ARG=$2
+      shift
+      CLASS=$ARG
+      ;;
       -M|--no-main)
          SEARCH_MAIN="no"
          ;;
@@ -182,7 +188,6 @@ do
          break ;;
       *)
          cat <&2 <<EOF
-
 Error, unknow arguments $1
 EOF
          help
@@ -207,6 +212,11 @@ else
    errorJavaExecutable
 fi
 
+if [ -n "$CLASS" ]
+then
+  launch $*
+  exit
+fi
 
 if [ $SEARCH_MAIN == "yes" ]
 then
